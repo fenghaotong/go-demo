@@ -9,13 +9,21 @@ import (
 )
 
 func main() {
-	conn := common.ConnectToMQ()
-	defer conn.Close()
-	channel := common.OpenChannel(conn)
-	defer channel.Close()
-	queue := common.DeclareQueue(channel, "task_queue", true)
+	mq := new(common.MqResource)
+	mq.ConnectToMQ()
+	channel := mq.OpenChannel()
+	defer mq.CloseResource()
 
-	err := channel.Qos(1, 0, false)  // 设置prefetch_count之后，如果消费者没有对该消息进行ack，则不会在想改消费者投递信息
+	queue, err := channel.QueueDeclare(
+		"task_queue",
+		true,     // 队列持久化
+		false,
+		false,
+		false,
+		nil)
+	utils.FailOnError(err, "Failed to declare a queue")
+
+	err = channel.Qos(1, 0, false)  // 设置prefetch_count之后，如果消费者没有对该消息进行ack，则不会在想改消费者投递信息
 	utils.FailOnError(err, "Failed to set Qos")
 
 	msgs, err := channel.Consume(
@@ -26,7 +34,7 @@ func main() {
 		false,
 		false,
 		nil)
-	utils.FailOnError(err, "Failed to register a consumer")
+	utils.FailOnError(err, "Failed t register a consumer")
 
 	forever := make(chan bool)
 

@@ -10,30 +10,34 @@ import (
 
 func main() {
 	mq := new(common.MqResource)
+
 	mq.ConnectToMQ()
 	channel := mq.OpenChannel()
 	defer mq.CloseResource()
-	queue, err := channel.QueueDeclare(
-		"task_queue",
-		true,     // 队列持久化
+
+	exchangeName := "logs"
+	exchangeType := "fanout"
+	err := channel.ExchangeDeclare(
+		exchangeName,
+		exchangeType,
+		true,
 		false,
 		false,
 		false,
 		nil)
-	utils.FailOnError(err, "Failed to declare a queue")
+	utils.FailOnError(err, "Failed to declare a Exchange")
 
 	body := common.BodyForm(os.Args)
 	err = channel.Publish(
+		exchangeName,
 		"",
-		queue.Name,
 		false,
 		false,
 		amqp.Publishing{
-			DeliveryMode: amqp.Persistent,
-			ContentType: "text/plain",
+			ContentType: "text/palin",
 			Body: []byte(body),
 		})
 	utils.FailOnError(err, "Failed to publish to message")
 
-	log.Printf(" [x] produce %s", body)
+	log.Printf(" [x] Sent %s", body)
 }

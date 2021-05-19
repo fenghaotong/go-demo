@@ -7,14 +7,22 @@ import (
 )
 
 func main() {
-	conn := common.ConnectToMQ()
-	defer conn.Close()
-	channel := common.OpenChannel(conn)
-	defer channel.Close()
-	queue := common.DeclareQueue(channel, "hello", false)
+	mq := new(common.MqResource)
+	mq.ConnectToMQ()
+	channel := mq.OpenChannel()
+	defer mq.CloseResource()
+
+	queue, err := channel.QueueDeclare(
+		"hello",
+		false,     // 队列持久化
+		false,
+		false,
+		false,
+		nil)
+	utils.FailOnError(err, "Failed to declare a queue")
 
 	body := "hello world"
-	err := channel.Publish(
+	err = channel.Publish(
 		"",
 		queue.Name,
 		false,

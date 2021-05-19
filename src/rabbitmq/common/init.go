@@ -5,27 +5,26 @@ import (
 	"utils"
 )
 
-func ConnectToMQ() *amqp.Connection{
+type MqResource struct {
+	conn *amqp.Connection
+	channel *amqp.Channel
+}
+
+
+func (self *MqResource) ConnectToMQ() {
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	utils.FailOnError(err, "Failed to connect to RabbitMQ")
-	return conn
+	self.conn = conn
 }
 
-func OpenChannel(conn *amqp.Connection) *amqp.Channel {
-	ch, err := conn.Channel()
+func (self *MqResource) OpenChannel() *amqp.Channel {
+	ch, err := self.conn.Channel()
 	utils.FailOnError(err, "Failed to open a channel")
-	return ch
+	self.channel = ch
+	return self.channel
 }
 
-func DeclareQueue(ch *amqp.Channel, queueName string, durable bool) amqp.Queue {
-	q, err := ch.QueueDeclare(
-		queueName,
-		durable,     // 队列持久化
-		false,
-		false,
-		false,
-		nil)
-	utils.FailOnError(err, "Failed to declare a queue")
-	return q
+func (self *MqResource) CloseResource() {
+	self.conn.Close()
+	self.channel.Close()
 }
-
