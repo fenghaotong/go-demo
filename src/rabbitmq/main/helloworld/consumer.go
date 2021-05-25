@@ -14,8 +14,8 @@ func main() {
 	channel := mq.OpenChannel()
 	defer mq.CloseResource()
 	queue, err := channel.QueueDeclare(
-		"task_queue",
-		true,     // 队列持久化
+		"hello",
+		false,     // 队列持久化
 		false,
 		false,
 		false,

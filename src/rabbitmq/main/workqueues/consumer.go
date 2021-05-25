@@ -29,7 +29,7 @@ func main() {
 	msgs, err := channel.Consume(
 		queue.Name,
 		"",
-		true,
+		false,
 		false,
 		false,
 		false,
