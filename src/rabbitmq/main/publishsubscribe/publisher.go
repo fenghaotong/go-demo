@@ -15,7 +15,7 @@ func main() {
 	channel := mq.OpenChannel()
 	defer mq.CloseResource()
 
-	exchangeName := "logs"
+	exchangeName := "cancel_fanout"
 	exchangeType := "fanout"
 	err := channel.ExchangeDeclare(
 		exchangeName,

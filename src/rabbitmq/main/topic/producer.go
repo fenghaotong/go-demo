@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/streadway/amqp"
 	"log"
 	"os"
@@ -27,6 +28,8 @@ func main() {
 	utils.FailOnError(err, "Failed to declare an exchange")
 
 	body := common.BodyForm3(os.Args)
+	fmt.Println(body)
+	fmt.Println(common.SeverityFrom2(os.Args))
 	err = channel.Publish(
 		exchangeName,
 		common.SeverityFrom2(os.Args),

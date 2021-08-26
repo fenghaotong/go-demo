@@ -25,7 +25,7 @@ func main() {
 	err = channel.QueueBind(
 		queue.Name,
 		"",
-		"logs",
+		"cancel_fanout",
 		false,
 		nil)
 	utils.FailOnError(err, "Failed to bind queue")

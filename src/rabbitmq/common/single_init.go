@@ -2,6 +2,7 @@ package common
 
 import (
 	"bytes"
+	"encoding/json"
 	"github.com/streadway/amqp"
 	"log"
 	"sync"
@@ -9,7 +10,7 @@ import (
 	"utils"
 )
 
-const MQURL = "amqp://guest:guest@1.117.115.165:5672/"
+const MQURL = "amqp://guest:guest@localhost:5672/"
 
 var (
 	rabbitmq *RabbitMQ
@@ -97,7 +98,9 @@ func (r *RabbitMQ) ConsumeSimple()  {
 
 	go func() {
 		for d := range msgs {
-			log.Printf("Received a message: %s ", d.Body)
+			var t2 map[string]interface{}
+			json.Unmarshal(d.Body, &t2)
+			log.Printf("Received a message: \n %s \n", t2)
 			dotCount := bytes.Count(d.Body, []byte("."))
 			t := time.Duration(dotCount) + 2
 			time.Sleep(t * time.Second)
@@ -110,4 +113,7 @@ func (r *RabbitMQ) ConsumeSimple()  {
 	<-forever
 }
 
-
+type TestJson struct {
+	sdkcommit  string		`json:"sdkcommit"`
+	sdkoutputcommit string 	`json:"sdkoutputcommit"`
+}
